@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(0.9);
+    background-color: theme('colors.primary.600');
+  }
+  50% {
+    transform: scale(1.1);
+    background-color: theme('colors.secondary.500');
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-breathe {
+  animation: breathe 8s infinite;
+}
+
+.animate-modalEnter {
+  animation: modalEnter 0.3s ease;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Custom color classes for mood indicators */
+.bg-mood-1 {
+  background-color: theme('colors.danger.500');
+}
+
+.bg-mood-2 {
+  background-color: theme('colors.warning.500');
+}
+
+.bg-mood-3 {
+  background-color: theme('colors.warning.400');
+}
+
+.bg-mood-4 {
+  background-color: theme('colors.success.400');
+}
+
+.bg-mood-5 {
+  background-color: theme('colors.success.500');
+}
