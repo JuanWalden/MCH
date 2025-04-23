@@ -1,3 +1,4 @@
+import Login from './components/Login';
 import React, { useRef } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -13,6 +14,8 @@ import JournalModal from './components/modals/JournalModal';
 import { ModalProvider } from './context/ModalContext';
 import { JournalProvider } from './context/JournalContext';
 import { useAuth } from './hooks/useAuth';
+import { signOut } from 'firebase/auth';
+import { auth } from './firebase';
 
 function App() {
   const herramientasRef = useRef<HTMLDivElement>(null);
@@ -33,7 +36,7 @@ function App() {
   }
 
   if (!user) {
-    return <div className="p-4 text-center text-red-600">Por favor, inicia sesión para acceder.</div>;
+    return <Login />;
   }
 
   if (expired) {
@@ -48,6 +51,15 @@ function App() {
     <JournalProvider>
       <ModalProvider>
         <div className="min-h-screen bg-gray-50">
+          <div className="p-4 text-right">
+            <button
+              onClick={() => signOut(auth)}
+              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-4 rounded"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+
           <Header onNavigate={scrollToSection} />
           <Hero />
 
