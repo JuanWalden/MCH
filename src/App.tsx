@@ -12,10 +12,13 @@ import CrisisModal from './components/modals/CrisisModal';
 import JournalModal from './components/modals/JournalModal';
 import { ModalProvider } from './context/ModalContext';
 import { JournalProvider } from './context/JournalContext';
+import { useAuth } from './hooks/useAuth';
 
 function App() {
   const herramientasRef = useRef<HTMLDivElement>(null);
   const registroRef = useRef<HTMLDivElement>(null);
+
+  const { user, role, expired, loading } = useAuth();
 
   const scrollToSection = (section: string) => {
     if (section === 'herramientas' && herramientasRef.current) {
@@ -25,21 +28,37 @@ function App() {
     }
   };
 
+  if (loading) {
+    return <div className="p-4 text-center">Cargando...</div>;
+  }
+
+  if (!user) {
+    return <div className="p-4 text-center text-red-600">Por favor, inicia sesión para acceder.</div>;
+  }
+
+  if (expired) {
+    return <div className="p-4 text-center text-red-600">Tu acceso ha expirado. Contacta con el administrador.</div>;
+  }
+
+  if (role !== 'admin' && role !== 'taller') {
+    return <div className="p-4 text-center text-red-600">No tienes permisos para acceder a esta aplicación.</div>;
+  }
+
   return (
     <JournalProvider>
       <ModalProvider>
         <div className="min-h-screen bg-gray-50">
           <Header onNavigate={scrollToSection} />
           <Hero />
-          
+
           <div ref={herramientasRef}>
             <ToolsGrid />
           </div>
-          
+
           <div ref={registroRef}>
             <RegistrySection />
           </div>
-          
+
           {/* Modals */}
           <BreathingModal />
           <GroundingModal />
