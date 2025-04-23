@@ -24,8 +24,10 @@ const BreathingModal: React.FC = () => {
   useEffect(() => {
     if (isOpen) {
       reset();
+    } else {
+      stop();
     }
-  }, [isOpen, reset]);
+  }, [isOpen, reset, stop]);
   
   // Format the remaining time as MM:SS
   const formatTime = () => {
@@ -74,7 +76,7 @@ const BreathingModal: React.FC = () => {
               : 'bg-primary-500'
           }`}
         >
-          <span>{phase}</span>
+          <span className="text-xl">{phase}</span>
         </div>
         
         <div className="mt-6 mb-2 bg-gray-200 rounded-full h-2.5 overflow-hidden">

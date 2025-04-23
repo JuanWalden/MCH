@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface UseBreathingExerciseReturn {
   isActive: boolean;
@@ -15,22 +15,34 @@ export const useBreathingExercise = (
 ): UseBreathingExerciseReturn => {
   const [isActive, setIsActive] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(totalDurationInSeconds);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout>();
+
+  const stop = useCallback(() => {
+    setIsActive(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = undefined;
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    stop();
+    setRemainingSeconds(totalDurationInSeconds);
+  }, [stop, totalDurationInSeconds]);
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current !== null) {
+      if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
   }, []);
 
-  const start = () => {
+  const start = useCallback(() => {
     if (isActive) return;
     
     setIsActive(true);
-    
-    intervalRef.current = window.setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setRemainingSeconds(prev => {
         if (prev <= 1) {
           stop();
@@ -39,42 +51,26 @@ export const useBreathingExercise = (
         return prev - 1;
       });
     }, 1000);
-  };
-
-  const stop = () => {
-    if (!isActive) return;
-    
-    setIsActive(false);
-    
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
-
-  const reset = () => {
-    stop();
-    setRemainingSeconds(totalDurationInSeconds);
-  };
+  }, [isActive, stop]);
 
   // Calculate the current phase of breathing
   const phase = (() => {
     if (!isActive) return 'Prepárate';
     
-    // 8-second cycle: 2s inhale, 2s hold, 2s exhale, 2s pause
-    const cyclePosition = Math.floor(remainingSeconds / 2) % 4;
+    // 4-second cycle: 4s inhale, 4s hold, 4s exhale, 4s pause
+    const cycleSeconds = remainingSeconds % 16;
     
-    switch (cyclePosition) {
-      case 0: return 'Inhala';
-      case 1: return 'Mantén';
-      case 2: return 'Exhala';
-      case 3: return 'Pausa';
-      default: return 'Prepárate';
-    }
+    if (cycleSeconds >= 12) return 'Inhala';
+    if (cycleSeconds >= 8) return 'Mantén';
+    if (cycleSeconds >= 4) return 'Exhala';
+    return 'Pausa';
   })();
 
   // Calculate progress percentage
-  const progress = 100 - ((remainingSeconds / totalDurationInSeconds) * 100);
+  const progress = Math.min(
+    ((totalDurationInSeconds - remainingSeconds) / totalDurationInSeconds) * 100,
+    100
+  );
 
   return {
     isActive,
